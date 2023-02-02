@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import { 
     View, 
     Text,
@@ -9,9 +9,29 @@ import {
     TextInput,
 } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import Carousel from 'react-native-snap-carousel'
+import BannerSlider from '../components/BannerSlider';
+import { sliderData, freeGames, paidGames } from './../model/data';
+import { windowWidth } from './../utils/Dimension';
+import CustomSwitch from './../components/CustomSwitch';
+import ListItems from './../components/ListItems';
 
 
-export default function HomeScreen() {
+
+function HomeScreen({navigation}) {
+
+    // to get source of data/image variables in BannerSlider.js
+    const renderBanner = ({item,index}) => {
+        return <BannerSlider data={item} />
+    }
+
+    // this function for tab selection switch
+    const [gamesTab, setGamesTab] = useState(1);
+
+    const onSelectSwitch = (value) => {
+      setGamesTab(value)
+    }
+    
   return (
     <SafeAreaView style={{
         flex: 1,
@@ -57,7 +77,54 @@ export default function HomeScreen() {
                     <Text style={{color:'#3FA95F'}}>See All</Text>
                 </TouchableOpacity>
             </View>
+
+            {/* This is for carousel */}
+            <Carousel 
+                ref={(c) => { this._carousel = c; }}
+                data={sliderData}
+                renderItem={renderBanner}
+                sliderWidth={windowWidth - 40}
+                itemWidth={300}
+                loop={true}
+            />
+
+            {/* this is for tab selection view */}
+            <View style={{marginVertical: 20}}>
+                <CustomSwitch 
+                    selectionMode={1}
+                    option1="Free to play"
+                    option2="Paid games"
+                    onSelectSwitch={onSelectSwitch}
+                />
+            </View>
+
+            {/* this is for list items */}
+            {gamesTab == 1 && freeGames.map(item => (
+                <ListItems 
+                    key={item.id}
+                    photo={item.poster}
+                    title={item.title}
+                    subtitle={item.subtitle}
+                    isFree={item.isFree}
+                    price={item.price}
+                />
+            )) 
+            }
+            {gamesTab == 2 && paidGames.map(item => (
+                <ListItems 
+                    key={item.id}
+                    photo={item.poster}
+                    title={item.title}
+                    subtitle={item.subtitle}
+                    isFree={item.isFree}
+                    price={item.price}
+                />
+            ))
+            }
+
         </ScrollView>
     </SafeAreaView>
   )
 }
+
+export default HomeScreen;
